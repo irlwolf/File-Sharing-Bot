@@ -1,3 +1,9 @@
-from bot import Bot
+from bot import Bot  # Ensure Bot is imported correctly
+import pyrogram
 
-Bot().run()
+# If you absolutely need to set MIN_CHANNEL_ID, you can do it here
+pyrogram.utils.MIN_CHANNEL_ID = -1002409821863
+
+if __name__ == "__main__":
+    bot = Bot()  # Ensure Bot is instantiated correctly
+    bot.run()  # Run the bot
