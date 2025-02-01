@@ -9,7 +9,7 @@ from pyrogram.enums import ParseMode
 import sys
 from datetime import datetime
 
-from config import *
+from config import API_HASH, APP_ID, LOGGER, TG_BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL, CHANNEL_ID, PORT
 
 ascii_art = """
 ░█████╗░░█████╗░██████╗░███████╗██╗░░██╗██████╗░░█████╗░████████╗███████╗
@@ -35,10 +35,12 @@ class Bot(Client):
         self.LOGGER = LOGGER
 
     async def start(self):
+        # Start the bot and fetch bot details
         await super().start()
         usr_bot_me = await self.get_me()
         self.uptime = datetime.now()
 
+        # Check for force subscription channel
         if FORCE_SUB_CHANNEL:
             try:
                 link = (await self.get_chat(FORCE_SUB_CHANNEL)).invite_link
@@ -53,6 +55,7 @@ class Bot(Client):
                 self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/CodeXBotzSupport for support")
                 sys.exit()
 
+        # Check if bot is admin in DB channel
         try:
             db_channel = await self.get_chat(CHANNEL_ID)
             self.db_channel = db_channel
@@ -64,19 +67,24 @@ class Bot(Client):
             self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/CodeXBotzSupport for support")
             sys.exit()
 
+        # Set parse mode and log bot status
         self.set_parse_mode(ParseMode.HTML)
         self.LOGGER(__name__).info(f"Bot Running..!\n\nCreated by \nhttps://t.me/CodeXBotz")
+        
+        # Print welcome message and ASCII art
         print(ascii_art)
         print("""Welcome to CodeXBotz File Sharing Bot""")
+        
         self.username = usr_bot_me.username
         
-        # Start the web response
+        # Start the web server
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
         await web.TCPSite(app, bind_address, PORT).start()
 
     async def stop(self, *args):
+        # Stop the bot and log the event
         await super().stop()
         self.LOGGER(__name__).info("Bot stopped.")
-        
+    
